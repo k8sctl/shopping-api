@@ -1,4 +1,5 @@
 services:
+
   mysql:
     image: mysql:8.0
     container_name: shopping-mysql
@@ -16,6 +17,21 @@ services:
       interval: 10s   # 10초마다 체크
       timeout: 5s     # 5초 안에 응답 없으면 실패
       retries: 5      # 5번 실패하면 unhealthy
+
+  app:
+    image: shopping-api:cached   # 빌드한 이미지
+    container_name: shopping-app
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/shopping_dev?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+    depends_on:
+      mysql:
+        condition: service_healthy
 
 volumes:
   shopping-mysql-data:
