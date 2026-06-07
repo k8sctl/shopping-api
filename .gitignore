@@ -40,3 +40,4 @@ build/
 
 ### VS Code ###
 .vscode/
+k8s/**/secret.yaml
