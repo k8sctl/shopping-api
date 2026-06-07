@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+ name: mysql-configmap
+ namespace: shopping-api
+data:
+ MYSQL_DATABASE: shopping_dev
+ MYSQL_USER: admin
