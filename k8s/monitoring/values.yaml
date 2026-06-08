@@ -1,0 +1,35 @@
+prometheus:
+  prometheusSpec:
+    retention: 24h  # 단기 보관 (나중에 Thanos가 장기 담당)
+    resources:
+      requests:
+        memory: 400Mi
+        cpu: 200m
+      limits:
+        memory: 800Mi
+    serviceMonitorSelectorNilUsesHelmValues: false  # 모든 ServiceMonitor 수집
+
+  service:
+    type: NodePort
+    nodePort: 30090
+
+grafana:
+  adminPassword: admin1234
+  service:
+    type: NodePort
+    nodePort: 30300
+  resources:
+    requests:
+      memory: 200Mi
+      cpu: 100m
+    limits:
+      memory: 400Mi
+
+alertmanager:
+  enabled: false  # 일단 비활성화
+
+nodeExporter:
+  enabled: true
+
+kubeStateMetrics:
+  enabled: true
