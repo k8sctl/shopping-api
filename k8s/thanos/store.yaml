@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: thanos-store
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: thanos-store
+  template:
+    metadata:
+      labels:
+        app: thanos-store
+    spec:
+      containers:
+        - name: thanos-store
+          image: quay.io/thanos/thanos:v0.34.0
+          args:
+            - store
+            - --objstore.config-file=/etc/thanos/objstore.yml
+            - --data-dir=/var/thanos/store
+          ports:
+            - containerPort: 10901
+              name: grpc
+            - containerPort: 10902
+              name: http
+          volumeMounts:
+            - name: objstore-config
+              mountPath: /etc/thanos
+            - name: data
+              mountPath: /var/thanos/store
+      volumes:
+        - name: objstore-config
+          secret:
+            secretName: thanos-objstore-secret
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: thanos-store
+  namespace: monitoring
+spec:
+  selector:
+    app: thanos-store
+  ports:
+    - name: grpc
+      port: 10901
+      targetPort: 10901
+    - name: http
+      port: 10902
+      targetPort: 10902

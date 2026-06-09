@@ -1,14 +1,19 @@
 prometheus:
   prometheusSpec:
-    retention: 24h  # 단기 보관 (나중에 Thanos가 장기 담당)
+    retention: 24h
     resources:
       requests:
         memory: 400Mi
         cpu: 200m
       limits:
         memory: 800Mi
-    serviceMonitorSelectorNilUsesHelmValues: false  # 모든 ServiceMonitor 수집
-
+    serviceMonitorSelectorNilUsesHelmValues: false
+    thanos:
+      image: quay.io/thanos/thanos:v0.34.0
+      objectStorageConfig:
+        existingSecret:
+          name: thanos-objstore-secret
+          key: objstore.yml
   service:
     type: NodePort
     nodePort: 30090
@@ -26,10 +31,14 @@ grafana:
       memory: 400Mi
 
 alertmanager:
-  enabled: false  # 일단 비활성화
+  enabled: false
 
 nodeExporter:
   enabled: true
+
+prometheus-node-exporter:
+  hostNetwork: true
+  hostPID: true
 
 kubeStateMetrics:
   enabled: true
