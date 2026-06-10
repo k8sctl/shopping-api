@@ -31,7 +31,46 @@ grafana:
       memory: 400Mi
 
 alertmanager:
-  enabled: false
+  enabled: true
+  alertmanagerSpec:
+    resources:
+      requests:
+        memory: 100Mi
+        cpu: 50m
+      limits:
+        memory: 200Mi
+
+additionalPrometheusRulesMap:
+  shopping-api-rules:
+    groups:
+      - name: shopping-api.availability
+        rules:
+          - alert: PodCrashLoopBackOff
+            expr: kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff", namespace="shopping-api"} == 1
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Pod CrashLoopBackOff 발생"
+              description: "{{ $labels.pod }} 가 CrashLoopBackOff 상태입니다"
+
+          - alert: PodDown
+            expr: kube_pod_status_phase{phase="Failed", namespace="shopping-api"} == 1
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Pod Down"
+              description: "{{ $labels.pod }} 가 Failed 상태입니다"
+
+          - alert: NodeNotReady
+            expr: kube_node_status_condition{condition="Ready", status="true"} == 0
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "노드 NotReady"
+              description: "{{ $labels.node }} 가 NotReady 상태입니다"
 
 nodeExporter:
   enabled: true
